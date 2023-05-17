@@ -3,7 +3,7 @@ import { Store, TypeormDatabase } from "@subsquid/typeorm-store"
 import { Transaction } from './model/generated/transaction.model';
 import { getChainConfig, WHITELIST_CONFIG } from './config/index';
 import { Account } from './model/generated/account.model';
-import { DepositEvent } from './model/generated/depositEvent.model';
+import { BridgeReceiveEvent } from "./model";
 
 const CHAIN_CONFIGS = getChainConfig();
 
@@ -12,7 +12,8 @@ const processor = new SubstrateBatchProcessor()
     .setDataSource(CHAIN_CONFIGS.dataSource)
     .addCall('*')
     .addEvent('*')
-    .includeAllBlocks()
+    .addEthereumTransaction('*')
+    .addEvmLog('*')
 
 type Item = BatchProcessorItem<typeof processor>
 
@@ -31,7 +32,7 @@ processor.run(new TypeormDatabase(), async ctx => {
     })
 
     let transactions: Transaction[] = [];
-    let depositEvents: DepositEvent[] = [];
+    let bridgeEvents: BridgeReceiveEvent[] = [];
 
     for (const block of ctx.blocks) {
         let blockNumber = block.header.height;
@@ -39,6 +40,11 @@ processor.run(new TypeormDatabase(), async ctx => {
         let timestamp = BigInt(block.header.timestamp);
         for (let item of block.items) {
             if (item.kind === "call") {
+                // console.log(item);
+                //if (item.name === 'Ethereum.transact') {
+                //    // ethereum transaction
+                //    console.log(item);
+                //} else {
                 const extrinsic = item.extrinsic;
                 const signature = extrinsic.signature;
                 // we only want signed extrinsics
@@ -65,38 +71,41 @@ processor.run(new TypeormDatabase(), async ctx => {
                     }
 
                 }
+                // }
             }
             else if (item.kind === "event") {
-                if (WHITELIST_CONFIG.Events.includes(item.event.name)) {
-                    let recipient = item.event.args.who;
-                    // in bridge transfers, worker accounts can't be the final recipient of the index business
-                    // because we have no access to the private key of the business recipient
-                    // we can't emit a bridge transfer using the business recipient account.
-                    // we can only control workers
-                    // therefore it makes sense to filter out those whose are not in the whitelist
-                    if (!WHITELIST_CONFIG.Accounts.includes(recipient)) {
-                        continue;
+                if (item.name === "EVM.Log") {
+                    /// EVM log
+                    // console.log(item);
+                } else {
+                    //console.log(item);
+                    if (WHITELIST_CONFIG.Events.includes(item.event.name)) {
+
+                        let recipient = item.event.args.who;
+                        if (!WHITELIST_CONFIG.Accounts.includes(recipient)) {
+                            continue;
+                        }
+                        let id = item.event.id;
+                        let name = item.event.name;
+                        // it might be large
+                        let amount = item.event.args.amount as string;
+                        let indexInBlock = item.event.indexInBlock;
+                        let result = item.event.extrinsic?.success;
+
+                        let account = get_or_create_account(knownAccounts, recipient);
+                        knownAccounts.set(account.id, account);
+
+                        bridgeEvents.push(new BridgeReceiveEvent({
+                            id,
+                            name,
+                            account,
+                            amount,
+                            indexInBlock,
+                            blockNumber,
+                            timestamp,
+                            result,
+                        }));
                     }
-                    let id = item.event.id;
-                    let name = item.event.name;
-                    // it might be large
-                    let amount = item.event.args.amount as string;
-                    let indexInBlock = item.event.indexInBlock;
-                    let result = item.event.extrinsic?.success;
-
-                    let account = get_or_create_account(knownAccounts, recipient);
-                    knownAccounts.set(account.id, account);
-
-                    depositEvents.push(new DepositEvent({
-                        id,
-                        name,
-                        account,
-                        amount,
-                        indexInBlock,
-                        blockNumber,
-                        timestamp,
-                        result,
-                    }));
                 }
             }
         }
@@ -104,9 +113,9 @@ processor.run(new TypeormDatabase(), async ctx => {
 
     console.log(knownAccounts);
     console.log(transactions);
-    console.log(depositEvents);
+    console.log(bridgeEvents);
 
     await ctx.store.save([...knownAccounts.values()]);
     await ctx.store.insert(transactions);
-    await ctx.store.insert(depositEvents);
+    await ctx.store.insert(bridgeEvents);
 })

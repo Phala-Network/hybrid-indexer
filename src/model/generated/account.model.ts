@@ -1,6 +1,6 @@
 import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, OneToMany as OneToMany_} from "typeorm"
 import {Transaction} from "./transaction.model"
-import {DepositEvent} from "./depositEvent.model"
+import {BridgeReceiveEvent} from "./bridgeReceiveEvent.model"
 
 @Entity_()
 export class Account {
@@ -17,6 +17,6 @@ export class Account {
     @OneToMany_(() => Transaction, e => e.account)
     transactions!: Transaction[]
 
-    @OneToMany_(() => DepositEvent, e => e.account)
-    depositEvents!: DepositEvent[]
+    @OneToMany_(() => BridgeReceiveEvent, e => e.account)
+    bridgeReceiveEvents!: BridgeReceiveEvent[]
 }

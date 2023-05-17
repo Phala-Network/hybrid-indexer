@@ -3,8 +3,8 @@ import * as marshal from "./marshal"
 import {Account} from "./account.model"
 
 @Entity_()
-export class DepositEvent {
-    constructor(props?: Partial<DepositEvent>) {
+export class BridgeReceiveEvent {
+    constructor(props?: Partial<BridgeReceiveEvent>) {
         Object.assign(this, props)
     }
 

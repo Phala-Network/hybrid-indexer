@@ -19,8 +19,8 @@ function getJSON(filename: string) {
 
 export function getChainConfig(): ProcessorConfig {
     switch (process.env.CHAIN) {
-        case 'acala':
-            return require('./chains/acala').default
+        case 'moonbeam':
+            return require('./chains/moonbeam').default
         default:
             throw new Error(`Unsupported chain ${process.env.CHAIN}`)
     }

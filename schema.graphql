@@ -2,7 +2,7 @@ type Account @entity {
   "Account address"
   id: ID!
   transactions: [Transaction!]! @derivedFrom(field: "account")
-  depositEvents: [DepositEvent!]! @derivedFrom(field: "account")
+  bridgeReceiveEvents: [BridgeReceiveEvent!]! @derivedFrom(field: "account")
 }
 
 type Transaction @entity {
@@ -15,7 +15,7 @@ type Transaction @entity {
   timestamp: BigInt! @index
 }
 
-type DepositEvent @entity {
+type BridgeReceiveEvent @entity {
   id: ID!
   name: String!
   account: Account!
