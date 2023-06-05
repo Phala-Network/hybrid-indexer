@@ -1,121 +1,133 @@
-import { BatchBlock, BatchContext, BatchProcessorItem, SubstrateBatchProcessor } from "@subsquid/substrate-processor"
-import { Store, TypeormDatabase } from "@subsquid/typeorm-store"
-import { Transaction } from './model/generated/transaction.model';
-import { getChainConfig, WHITELIST_CONFIG } from './config/index';
-import { Account } from './model/generated/account.model';
-import { BridgeReceiveEvent } from "./model";
+// Only for local dev
+import * as dotenv from 'dotenv'
+dotenv.config()
 
-const CHAIN_CONFIGS = getChainConfig();
+import fs from 'fs'
+import { BatchProcessorItem, SubstrateBatchProcessor } from "@subsquid/substrate-processor"
+import { TypeormDatabase } from "@subsquid/typeorm-store"
+import { getTransactionResult } from "@subsquid/frontier"
+import * as ss58 from "@subsquid/ss58"
+import { Transaction } from './model/generated/transaction.model';
+
+const WORKER_ACCOUNTS: string[] = getJSON(
+    'assets/workers.json'
+)
 
 const processor = new SubstrateBatchProcessor()
-    .setBlockRange(CHAIN_CONFIGS.blockRange)
-    .setDataSource(CHAIN_CONFIGS.dataSource)
+    .setBlockRange({
+        from: Number(process.env.FROM_BLOCK),
+        to: Number(process.env.TO_BLOCK)
+    })
+    .setDataSource({
+        archive: String(process.env.DATA_SOURCE)
+    })
     .addCall('*')
     .addEvent('*')
-    .addEthereumTransaction('*')
-    .addEvmLog('*')
+    .addEthereumTransaction('*', {
+        data: {
+          call: true,
+        }
+      })
+    .addEvmLog('*', {
+        data: {
+          event: true
+        }
+      })
 
 type Item = BatchProcessorItem<typeof processor>
 
-function get_or_create_account(map: Map<string, Account>, addr: string): Account {
-    let account = map.get(addr);
-    if (account === undefined) {
-        account = new Account();
-        account.id = addr;
+function findAccount(account: string) {
+    for (const whitelistAccount of WORKER_ACCOUNTS) {
+        if (whitelistAccount.toString().toLowerCase() === account.toString().toLowerCase()) {
+            return true;
+        }
     }
-    return account;
+    return false;
+}
+
+function getJSON(filename: string) {
+    const data = fs.readFileSync(filename).toString()
+    return JSON.parse(data)
 }
 
 processor.run(new TypeormDatabase(), async ctx => {
-    let knownAccounts = await ctx.store.find(Account).then(accounts => {
-        return new Map(accounts.map(a => [a.id, a]))
-    })
-
     let transactions: Transaction[] = [];
-    let bridgeEvents: BridgeReceiveEvent[] = [];
 
     for (const block of ctx.blocks) {
         let blockNumber = block.header.height;
         // unix timestamp
-        let timestamp = BigInt(block.header.timestamp);
+        let timestamp = block.header.timestamp.toString();
+
+        // Parse tx sent from substrate side
         for (let item of block.items) {
             if (item.kind === "call") {
-                // console.log(item);
-                //if (item.name === 'Ethereum.transact') {
-                //    // ethereum transaction
-                //    console.log(item);
-                //} else {
-                const extrinsic = item.extrinsic;
+                let extrinsic_item: any = item;
+                const extrinsic = extrinsic_item.extrinsic;
                 const signature = extrinsic.signature;
                 // we only want signed extrinsics
                 if (signature) {
                     // only handler addresses in the whitelist
-                    let addr = signature.address.value as string;
-                    if (WHITELIST_CONFIG.Accounts.includes(addr)) {
-                        let nonce = signature.signedExtensions.CheckNonce.nonce;
+                    let account;
+                    if (String(process.env.CHAIN_TYPE) === 'substrate') {
+                        if (signature.address.__kind === 'Id') {
+                            account = signature.address.value.toString();
+                        } else {
+                            // Try to decode
+                            account = ss58.codec(String(process.env.CHAIN)).decode(signature.address.toString()).toString();
+                        }
+                    } else {
+                        account = signature.address.toString();
+                    }
+                    if (findAccount(account)) {
+                        let nonce = signature.signedExtensions.CheckNonce;
                         let result = extrinsic.success;
-                        ctx.log.info(`${timestamp}|${blockNumber}: ${addr}'s nonce at block ${block.header.height}: ${nonce.toString()}: ${result}`)
+                        ctx.log.info(`${timestamp}|${blockNumber}: ${account}'s nonce at block ${block.header.height}: ${nonce.toString()}: ${result}`)
 
-                        let account = get_or_create_account(knownAccounts, addr);
-                        knownAccounts.set(account.id, account);
-
-                        let id = item.extrinsic.id;
-                        transactions.push(new Transaction({
+                        let id = extrinsic_item.extrinsic.id;
+                        let tx = new Transaction({
                             id,
                             account,
                             nonce,
                             result,
                             blockNumber,
                             timestamp,
-                        }));
+                        });
+                        console.log(`Save a Substrate tx signed by worker: ${JSON.stringify(tx, null, 2)}`);
+                        transactions.push(tx);
                     }
-
                 }
-                // }
             }
-            else if (item.kind === "event") {
-                if (item.name === "EVM.Log") {
-                    /// EVM log
-                    // console.log(item);
-                } else {
-                    //console.log(item);
-                    if (WHITELIST_CONFIG.Events.includes(item.event.name)) {
+        }
 
-                        let recipient = item.event.args.who;
-                        if (!WHITELIST_CONFIG.Accounts.includes(recipient)) {
-                            continue;
-                        }
-                        let id = item.event.id;
-                        let name = item.event.name;
-                        // it might be large
-                        let amount = item.event.args.amount as string;
-                        let indexInBlock = item.event.indexInBlock;
-                        let result = item.event.extrinsic?.success;
-
-                        let account = get_or_create_account(knownAccounts, recipient);
-                        knownAccounts.set(account.id, account);
-
-                        bridgeEvents.push(new BridgeReceiveEvent({
-                            id,
-                            name,
-                            account,
-                            amount,
-                            indexInBlock,
-                            blockNumber,
-                            timestamp,
-                            result,
-                        }));
+        // Parse tx sent from EVM side
+        for (let item of block.items) {
+            if (item.kind === 'event') {    // event
+                if (item.event.name === "EVM.Log") {
+                    // TODO: parse contract execution result from EVM log
+                } else if (item.event.name === String("Ethereum.Executed")) {
+                    if (!findAccount(item.event.args.from)) {
+                        continue;
                     }
+                    // Get Transaction result
+                    const result = getTransactionResult(ctx, item.event);
+
+                    // Set tx result, TODO; statusReason
+                    let tx = new Transaction({
+                        id: result.transactionHash,
+                        account: item.event.args.from,
+                        nonce: Number(item.event.extrinsic?.call.args.transaction.value.nonce),
+                        result: result.status === "Succeed",
+                        blockNumber,
+                        timestamp,
+                    });
+                    console.log(`Save an EVM tx signed by worker: ${JSON.stringify(tx, null, 2)}`);
+                    transactions.push(tx);
                 }
             }
         }
     }
 
-    console.log(knownAccounts);
-    console.log(transactions);
-    console.log(bridgeEvents);
+    console.log(`${transactions.length} transactions has been inserted into db`);
 
-    await ctx.store.save([...knownAccounts.values()]);
     await ctx.store.insert(transactions);
-    await ctx.store.insert(bridgeEvents);
 })

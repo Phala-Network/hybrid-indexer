@@ -1,28 +1,9 @@
-type Account @entity {
-  "Account address"
-  id: ID!
-  transactions: [Transaction!]! @derivedFrom(field: "account")
-  bridgeReceiveEvents: [BridgeReceiveEvent!]! @derivedFrom(field: "account")
-}
-
 type Transaction @entity {
   id: ID!
-  account: Account!
-  nonce: Int!
+  account: String! @index
+  nonce: Int! @index
   result: Boolean!
-  blockNumber: Int! @index
+  blockNumber: Int!
   "Unix timestamp"
-  timestamp: BigInt! @index
-}
-
-type BridgeReceiveEvent @entity {
-  id: ID!
-  name: String!
-  account: Account!
-  amount: String!
-  result: Boolean!
-  indexInBlock: Int! @index
-  blockNumber: Int! @index
-  "Unix timestamp"
-  timestamp: BigInt! @index
+  timestamp: String!
 }

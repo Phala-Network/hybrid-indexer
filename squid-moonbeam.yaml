@@ -1,7 +1,7 @@
 manifestVersion: subsquid.io/v0.1
 name: graph-moonbeam
 version: 1
-description: 'Moonbeam Indexer'
+description: 'inDEX Moonbeam Indexer'
 build: 
 deploy:
   addons:
@@ -10,6 +10,14 @@ deploy:
     env:
       CHAIN:
         moonbeam
+      CHAIN_TYPE:
+        evm
+      FROM_BLOCK:
+        3629629
+      TO_BLOCK:
+        3629630
+      DATA_SOURCE:
+        https://moonbeam.archive.subsquid.io/graphql
     cmd:
       - node
       - lib/processor

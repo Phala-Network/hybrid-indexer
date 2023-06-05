@@ -1,6 +1,4 @@
-import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, ManyToOne as ManyToOne_, Index as Index_} from "typeorm"
-import * as marshal from "./marshal"
-import {Account} from "./account.model"
+import {Entity as Entity_, Column as Column_, PrimaryColumn as PrimaryColumn_, Index as Index_} from "typeorm"
 
 @Entity_()
 export class Transaction {
@@ -12,23 +10,22 @@ export class Transaction {
     id!: string
 
     @Index_()
-    @ManyToOne_(() => Account, {nullable: true})
-    account!: Account
+    @Column_("text", {nullable: false})
+    account!: string
 
+    @Index_()
     @Column_("int4", {nullable: false})
     nonce!: number
 
     @Column_("bool", {nullable: false})
     result!: boolean
 
-    @Index_()
     @Column_("int4", {nullable: false})
     blockNumber!: number
 
     /**
      * Unix timestamp
      */
-    @Index_()
-    @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
-    timestamp!: bigint
+    @Column_("text", {nullable: false})
+    timestamp!: string
 }

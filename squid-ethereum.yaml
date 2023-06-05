@@ -1,7 +1,7 @@
 manifestVersion: subsquid.io/v0.1
-name: graph-khala
+name: graph-ethereum
 version: 1
-description: 'Khala Indexer'
+description: 'inDEX Ethereum Indexer'
 build: 
 deploy:
   addons:
@@ -9,7 +9,15 @@ deploy:
   processor:
     env:
       CHAIN:
-        khala
+        ethereum
+      CHAIN_TYPE:
+        evm
+      FROM_BLOCK:
+        3629629
+      TO_BLOCK:
+        3629630
+      DATA_SOURCE:
+        https://eth.archive.subsquid.io
     cmd:
       - node
       - lib/processor
