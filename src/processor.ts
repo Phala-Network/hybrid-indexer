@@ -2,16 +2,16 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-import fs from 'fs'
-import { BatchProcessorItem, SubstrateBatchProcessor } from "@subsquid/substrate-processor"
-import { TypeormDatabase } from "@subsquid/typeorm-store"
-import { getTransactionResult } from "@subsquid/frontier"
-import * as ss58 from "@subsquid/ss58"
-import { Transaction } from './model/generated/transaction.model';
 
-const WORKER_ACCOUNTS: string[] = getJSON(
-    'assets/workers.json'
-)
+import { BatchContext, BatchProcessorItem, SubstrateBatchProcessor } from '@subsquid/substrate-processor'
+import { Store, TypeormDatabase} from '@subsquid/typeorm-store'
+import { getTransactionResult } from '@subsquid/frontier'
+import * as ss58 from '@subsquid/ss58'
+import { Transaction } from './model/generated/transaction.model';
+import { findAccount } from './utils'
+
+type Item = BatchProcessorItem<typeof processor>
+type Ctx = BatchContext<Store, Item>
 
 const processor = new SubstrateBatchProcessor()
     .setBlockRange({
@@ -32,23 +32,7 @@ const processor = new SubstrateBatchProcessor()
         data: {
           event: true
         }
-      })
-
-type Item = BatchProcessorItem<typeof processor>
-
-function findAccount(account: string) {
-    for (const whitelistAccount of WORKER_ACCOUNTS) {
-        if (whitelistAccount.toString().toLowerCase() === account.toString().toLowerCase()) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function getJSON(filename: string) {
-    const data = fs.readFileSync(filename).toString()
-    return JSON.parse(data)
-}
+    })
 
 processor.run(new TypeormDatabase(), async ctx => {
     let transactions: Transaction[] = [];

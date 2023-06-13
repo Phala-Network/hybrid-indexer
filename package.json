@@ -1,5 +1,5 @@
 {
-  "name": "index-transactions",
+  "name": "index-hybrid-indexer",
   "private": true,
   "engines": {
     "node": ">=16"
@@ -14,10 +14,11 @@
   "dependencies": {
     "@polkadot/util": "^10.4.1",
     "@subsquid/archive-registry": "2.1.4",
+    "@subsquid/evm-processor": "1.0.0",
     "@subsquid/frontier": "^0.2.0",
     "@subsquid/graphql-server": "3.3.2",
     "@subsquid/ss58": "0.1.4",
-    "@subsquid/substrate-processor": "2.3.1",
+    "@subsquid/substrate-processor": "^2.4.1",
     "@subsquid/typeorm-migration": "0.1.6",
     "@subsquid/typeorm-store": "0.2.2",
     "dotenv": "^16.0.0",
