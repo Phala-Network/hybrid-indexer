@@ -70,7 +70,7 @@ processor.run(new TypeormDatabase(), async ctx => {
                         let id = extrinsic_item.extrinsic.id;
                         let tx = new Transaction({
                             id,
-                            account,
+                            account: account.toLowerCase(),
                             nonce,
                             result,
                             blockNumber,
@@ -98,7 +98,7 @@ processor.run(new TypeormDatabase(), async ctx => {
                     // Set tx result, TODO; statusReason
                     let tx = new Transaction({
                         id: result.transactionHash,
-                        account: item.event.args.from,
+                        account: item.event.args.from.toLowerCase(),
                         nonce: Number(item.event.extrinsic?.call.args.transaction.value.nonce),
                         result: result.status === "Succeed",
                         blockNumber,
