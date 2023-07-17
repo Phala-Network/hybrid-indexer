@@ -2,22 +2,18 @@ manifestVersion: subsquid.io/v0.1
 name: graph-phala
 version: 1
 description: 'inDEX phala Indexer'
-build: 
+build:
 deploy:
   addons:
-    postgres: 
+    postgres:
   processor:
     env:
-      CHAIN:
-        phala
-      CHAIN_TYPE:
-        substrate
-      FROM_BLOCK:
-        3629629
-      TO_BLOCK:
-        3629630
-      DATA_SOURCE:
-        https://phala.archive.subsquid.io/graphql
+      CHAIN: phala
+      CHAIN_TYPE: substrate
+      FROM_BLOCK: 2990000
+      # TO_BLOCK:
+      #   3629630
+      DATA_SOURCE: https://phala.archive.subsquid.io/graphql
     cmd:
       - node
       - lib/processor

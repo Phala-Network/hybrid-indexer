@@ -1,18 +1,19 @@
 manifestVersion: subsquid.io/v0.1
-name: graph-moonbeam
+name: graph-khala
 version: 1
-description: 'inDEX Moonbeam Indexer'
+description: 'inDEX phala Indexer'
 build:
 deploy:
   addons:
     postgres:
   processor:
     env:
-      CHAIN: moonbeam
-      CHAIN_TYPE: evm
-      FROM_BLOCK: 4010000
-      # TO_BLOCK: 3629630
-      DATA_SOURCE: https://moonbeam.archive.subsquid.io/graphql
+      CHAIN: phala
+      CHAIN_TYPE: substrate
+      FROM_BLOCK: 4280000
+      # TO_BLOCK:
+      #   3629630
+      DATA_SOURCE: https://khala.archive.subsquid.io/graphql
     cmd:
       - node
       - lib/processor

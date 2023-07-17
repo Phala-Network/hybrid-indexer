@@ -16,7 +16,7 @@ type Ctx = BatchContext<Store, Item>
 const processor = new SubstrateBatchProcessor()
     .setBlockRange({
         from: Number(process.env.FROM_BLOCK),
-        to: Number(process.env.TO_BLOCK)
+        to: Number(process.env.TO_BLOCK) ||undefined
     })
     .setDataSource({
         archive: String(process.env.DATA_SOURCE)
