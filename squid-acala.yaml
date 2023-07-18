@@ -1,0 +1,30 @@
+manifestVersion: subsquid.io/v0.1
+name: graph-acala
+version: 1
+description: 'inDEX Acala Indexer'
+build:
+deploy:
+  addons:
+    postgres:
+  processor:
+    env:
+      CHAIN: acala
+      CHAIN_TYPE: substrate
+      FROM_BLOCK: 4037000
+      # TO_BLOCK: 3629630
+      DATA_SOURCE: https://acala.archive.subsquid.io/graphql
+    cmd:
+      - node
+      - lib/processor
+  api:
+    cmd:
+      - npx
+      - squid-graphql-server
+      - '--dumb-cache'
+      - in-memory
+      - '--dumb-cache-ttl'
+      - '1000'
+      - '--dumb-cache-size'
+      - '100'
+      - '--dumb-cache-max-age'
+      - '1000'
