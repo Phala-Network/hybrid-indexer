@@ -10,8 +10,7 @@ deploy:
     env:
       CHAIN: acala
       CHAIN_TYPE: substrate
-      FROM_BLOCK: 4037000
-      # TO_BLOCK: 3629630
+      FROM_BLOCK: 4050000
       DATA_SOURCE: https://acala.archive.subsquid.io/graphql
     cmd:
       - node

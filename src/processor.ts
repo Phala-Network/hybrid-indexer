@@ -64,6 +64,9 @@ processor.run(new TypeormDatabase(), async ctx => {
                     }
                     if (findAccount(account)) {
                         let nonce = signature.signedExtensions.CheckNonce;
+                        if (typeof nonce !== 'number' && Object.prototype.hasOwnProperty.call(nonce, 'nonce')) {
+                            nonce = nonce.nonce
+                        }
                         let result = extrinsic.success;
                         ctx.log.info(`${timestamp}|${blockNumber}: ${account}'s nonce at block ${block.header.height}: ${nonce.toString()}: ${result}`)
 
