@@ -1,0 +1,29 @@
+manifestVersion: subsquid.io/v0.1
+name: graph-astar
+version: 1
+description: 'inDEX Astar Indexer'
+build:
+deploy:
+  addons:
+    postgres:
+  processor:
+    env:
+      CHAIN: astar
+      CHAIN_TYPE: evm
+      FROM_BLOCK: 4269900
+      DATA_SOURCE: https://astar.archive.subsquid.io/graphql
+    cmd:
+      - node
+      - lib/processor
+  api:
+    cmd:
+      - npx
+      - squid-graphql-server
+      - '--dumb-cache'
+      - in-memory
+      - '--dumb-cache-ttl'
+      - '1000'
+      - '--dumb-cache-size'
+      - '100'
+      - '--dumb-cache-max-age'
+      - '1000'
