@@ -9,8 +9,8 @@ deploy:
   processor:
     env:
       CHAIN: astar
-      CHAIN_TYPE: evm
-      FROM_BLOCK: 4269900
+      CHAIN_TYPE: substrate
+      FROM_BLOCK: 4310000
       DATA_SOURCE: https://astar.archive.subsquid.io/graphql
     cmd:
       - node
