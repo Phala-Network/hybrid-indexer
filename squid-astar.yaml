@@ -8,10 +8,9 @@ deploy:
     postgres:
   processor:
     env:
-      CHAIN: astar
-      CHAIN_TYPE: substrate
+      NETWORK: astar
+      TYPE: Substrate
       FROM_BLOCK: 4310000
-      DATA_SOURCE: https://astar.archive.subsquid.io/graphql
     cmd:
       - node
       - lib/processor

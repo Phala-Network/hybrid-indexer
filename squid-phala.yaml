@@ -8,12 +8,9 @@ deploy:
     postgres:
   processor:
     env:
-      CHAIN: phala
-      CHAIN_TYPE: substrate
+      NETWORK: phala
+      TYPE: Substrate
       FROM_BLOCK: 2990000
-      # TO_BLOCK:
-      #   3629630
-      DATA_SOURCE: https://phala.archive.subsquid.io/graphql
     cmd:
       - node
       - lib/processor

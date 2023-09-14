@@ -8,10 +8,9 @@ deploy:
     postgres:
   processor:
     env:
-      CHAIN: acala
-      CHAIN_TYPE: substrate
+      NETWORK: acala
+      TYPE: Substrate
       FROM_BLOCK: 4050000
-      DATA_SOURCE: https://acala.archive.subsquid.io/graphql
     cmd:
       - node
       - lib/processor
