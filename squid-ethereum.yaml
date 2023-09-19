@@ -11,6 +11,7 @@ deploy:
       NETWORK: eth-mainnet
       TYPE: EVM
       FROM_BLOCK: 18120000
+      CHAIN: https://rpc.ankr.com/eth
     cmd:
       - node
       - lib/processor

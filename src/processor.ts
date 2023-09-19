@@ -154,7 +154,8 @@ if (type === 'Substrate') {
   })
 } else {
   const processor = new EvmBatchProcessor()
-    .setDataSource({archive: lookupArchive(network, {type})})
+    .setDataSource({archive: lookupArchive(network, {type}), chain})
+    .setFinalityConfirmation(1)
     .setFields({
       transaction: {
         from: true,
@@ -165,9 +166,7 @@ if (type === 'Substrate') {
       },
     })
     .setBlockRange({from, to})
-    .addTransaction({
-      from: WORKER_ACCOUNTS_20,
-    })
+    .addTransaction({from: WORKER_ACCOUNTS_20})
 
   processor.run(new TypeormDatabase(), async (ctx) => {
     const transactions: Transaction[] = []
