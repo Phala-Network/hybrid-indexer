@@ -154,7 +154,10 @@ if (type === 'Substrate') {
   })
 } else {
   const processor = new EvmBatchProcessor()
-    .setDataSource({archive: lookupArchive(network, {type}), chain})
+    .setDataSource({
+      archive: lookupArchive(network, {type}),
+      chain: {url: chain, maxBatchCallSize: 1},
+    })
     .setFinalityConfirmation(1)
     .setFields({
       transaction: {
