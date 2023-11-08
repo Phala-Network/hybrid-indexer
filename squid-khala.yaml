@@ -11,6 +11,7 @@ deploy:
       NETWORK: khala
       TYPE: Substrate
       FROM_BLOCK: 4280000
+      CHAIN: wss://khala-rpc.dwellir.com
     cmd:
       - node
       - lib/processor

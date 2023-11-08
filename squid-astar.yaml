@@ -11,6 +11,7 @@ deploy:
       NETWORK: astar
       TYPE: Substrate
       FROM_BLOCK: 4310000
+      CHAIN: wss://astar-rpc.dwellir.com
     cmd:
       - node
       - lib/processor

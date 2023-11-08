@@ -11,6 +11,7 @@ deploy:
       NETWORK: phala
       TYPE: Substrate
       FROM_BLOCK: 2990000
+      CHAIN: wss://phala-rpc.dwellir.com
     cmd:
       - node
       - lib/processor

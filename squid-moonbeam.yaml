@@ -11,6 +11,7 @@ deploy:
       NETWORK: moonbeam
       TYPE: EVM
       FROM_BLOCK: 4010000
+      CHAIN: https://rpc.api.moonbeam.network
     cmd:
       - node
       - lib/processor

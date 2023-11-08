@@ -1,6 +1,3 @@
-// Only for local dev
-import 'dotenv/config'
-
 import {lookupArchive} from '@subsquid/archive-registry'
 import {EvmBatchProcessor} from '@subsquid/evm-processor'
 import {getTransactionResult} from '@subsquid/frontier'
@@ -38,12 +35,11 @@ const from = Number(process.env.FROM_BLOCK)
 const to = Number(process.env.TO_BLOCK) || undefined
 
 if (type === 'Substrate') {
-  // WIP
   const processor = new SubstrateBatchProcessor()
     .setBlockRange({from, to})
     .setDataSource({
-      archive: lookupArchive(network, {type}),
-      chain,
+      archive: lookupArchive(network, {type, release: 'ArrowSquid'}),
+      chain: {url: chain, rateLimit: 10},
     })
     .setFields({
       call: {success: true},
@@ -51,10 +47,9 @@ if (type === 'Substrate') {
       block: {timestamp: true},
     })
     .addCall({extrinsic: true})
-    .addEvent({call: true})
-    .addEthereumTransaction({})
-    .addEvmLog({})
-    .includeAllBlocks()
+    .addEvent({name: ['Ethereum.Executed'], call: true})
+  // .addEthereumTransaction({})
+  // .addEvmLog({})
 
   processor.run(new TypeormDatabase(), async (ctx) => {
     const transactions: Transaction[] = []
@@ -129,7 +124,7 @@ if (type === 'Substrate') {
             continue
           }
           // Get Transaction result
-          const result = getTransactionResult(ctx as any, event)
+          const result = getTransactionResult(event)
 
           // Set tx result, TODO; statusReason
           const tx = new Transaction({
@@ -155,8 +150,8 @@ if (type === 'Substrate') {
 } else {
   const processor = new EvmBatchProcessor()
     .setDataSource({
-      archive: lookupArchive(network, {type}),
-      chain: {url: chain, maxBatchCallSize: 1},
+      archive: lookupArchive(network, {type, release: 'ArrowSquid'}),
+      chain: {url: chain, rateLimit: 10},
     })
     .setFinalityConfirmation(1)
     .setFields({

@@ -1,17 +1,17 @@
 manifestVersion: subsquid.io/v0.1
-name: graph-ethereum
+name: graph-polkadot
 version: 1
-description: 'inDEX Ethereum Indexer'
+description: 'inDEX Polkadot Indexer'
 build:
 deploy:
   addons:
     postgres:
   processor:
     env:
-      NETWORK: eth-mainnet
-      TYPE: EVM
-      FROM_BLOCK: 18120000
-      CHAIN: https://rpc.ankr.com/eth
+      NETWORK: polkadot
+      TYPE: Substrate
+      FROM_BLOCK: 17788000
+      CHAIN: wss://rpc.polkadot.io
     cmd:
       - node
       - lib/processor

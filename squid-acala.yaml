@@ -11,6 +11,7 @@ deploy:
       NETWORK: acala
       TYPE: Substrate
       FROM_BLOCK: 4050000
+      CHAIN: wss://acala-rpc.dwellir.com
     cmd:
       - node
       - lib/processor
