@@ -2,9 +2,7 @@
   "name": "index-hybrid-indexer",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "build": "rm -rf lib && tsc"
-  },
+  "scripts": {},
   "dependencies": {
     "@polkadot/util": "^12.5.1",
     "@subsquid/archive-registry": "^3.3.0",

@@ -81,7 +81,7 @@ if (type === 'Substrate') {
           account = address.toString()
         }
         if (findAccount(account, WORKER_ACCOUNTS)) {
-          let nonce = (signature.signedExtensions as any).CheckNonce
+          let nonce = (signature.signedExtensions as any).checkNonce
           if (
             typeof nonce !== 'number' &&
             Object.prototype.hasOwnProperty.call(nonce, 'nonce')

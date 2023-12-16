@@ -13,17 +13,9 @@ deploy:
       FROM_BLOCK: 17788000
       CHAIN: wss://rpc.polkadot.io
     cmd:
-      - node
-      - lib/processor
+      - sqd
+      - process:prod
   api:
     cmd:
-      - npx
-      - squid-graphql-server
-      - '--dumb-cache'
-      - in-memory
-      - '--dumb-cache-ttl'
-      - '1000'
-      - '--dumb-cache-size'
-      - '100'
-      - '--dumb-cache-max-age'
-      - '1000'
+      - sqd
+      - serve:prod
