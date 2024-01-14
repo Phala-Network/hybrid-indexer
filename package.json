@@ -2,28 +2,30 @@
   "name": "index-hybrid-indexer",
   "version": "0.0.1",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "build": "rm -rf lib && tsc"
+  },
   "dependencies": {
-    "@polkadot/util": "^12.5.1",
+    "@polkadot/util": "^12.6.2",
     "@subsquid/archive-registry": "^3.3.0",
-    "@subsquid/evm-processor": "^1.8.5",
-    "@subsquid/frontier": "^4.0.1",
-    "@subsquid/graphql-server": "^4.3.1",
-    "@subsquid/ss58": "^2.0.1",
-    "@subsquid/substrate-processor": "^7.2.1",
-    "@subsquid/typeorm-migration": "^1.2.2",
-    "@subsquid/typeorm-store": "^1.2.4",
+    "@subsquid/evm-processor": "^1.13.0",
+    "@subsquid/frontier": "^4.0.2",
+    "@subsquid/graphql-server": "^4.5.0",
+    "@subsquid/ss58": "^2.0.2",
+    "@subsquid/substrate-processor": "^8.1.1",
+    "@subsquid/typeorm-migration": "^1.3.0",
+    "@subsquid/typeorm-store": "^1.2.6",
     "dotenv": "^16.3.1",
     "pg": "^8.11.3",
-    "typeorm": "^0.3.17"
+    "typeorm": "^0.3.19"
   },
   "devDependencies": {
-    "@subsquid/evm-typegen": "^3.2.3",
-    "@subsquid/substrate-metadata-explorer": "^3.1.1",
-    "@subsquid/substrate-typegen": "^8.0.1",
-    "@subsquid/typeorm-codegen": "^1.3.2",
+    "@subsquid/evm-typegen": "^3.2.4",
+    "@subsquid/substrate-metadata-explorer": "^3.1.2",
+    "@subsquid/substrate-typegen": "^8.0.2",
+    "@subsquid/typeorm-codegen": "^1.3.3",
     "@types/node": "18.11.18",
-    "typescript": "^5.2.2"
+    "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=18"

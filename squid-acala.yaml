@@ -1,6 +1,6 @@
 manifestVersion: subsquid.io/v0.1
 name: graph-acala
-version: 1
+version: 2
 description: 'inDEX Acala Indexer'
 build:
 deploy:
@@ -19,3 +19,8 @@ deploy:
     cmd:
       - sqd
       - serve:prod
+
+scale:
+  addons:
+    postgres:
+      storage: 5G

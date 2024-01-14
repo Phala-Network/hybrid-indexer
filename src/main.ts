@@ -1,5 +1,5 @@
 import {lookupArchive} from '@subsquid/archive-registry'
-import {EvmBatchProcessor} from '@subsquid/evm-processor'
+import {EvmBatchProcessor, assertNotNull} from '@subsquid/evm-processor'
 import {getTransactionResult} from '@subsquid/frontier'
 import * as ss58 from '@subsquid/ss58'
 import {SubstrateBatchProcessor} from '@subsquid/substrate-processor'
@@ -28,19 +28,17 @@ declare global {
   }
 }
 
-const network = process.env.NETWORK
-const type = process.env.TYPE
-const chain = process.env.CHAIN
+const network = assertNotNull(process.env.NETWORK)
+const type = assertNotNull(process.env.TYPE)
+const chain = assertNotNull(process.env.CHAIN)
 const from = Number(process.env.FROM_BLOCK)
 const to = Number(process.env.TO_BLOCK) || undefined
 
 if (type === 'Substrate') {
   const processor = new SubstrateBatchProcessor()
     .setBlockRange({from, to})
-    .setDataSource({
-      archive: lookupArchive(network, {type, release: 'ArrowSquid'}),
-      chain: {url: chain, rateLimit: 10},
-    })
+    .setGateway(lookupArchive(network, {type, release: 'ArrowSquid'}))
+    .setRpcEndpoint({url: chain, rateLimit: 10})
     .setFields({
       call: {success: true},
       extrinsic: {signature: true, success: true},
@@ -149,11 +147,9 @@ if (type === 'Substrate') {
   })
 } else {
   const processor = new EvmBatchProcessor()
-    .setDataSource({
-      archive: lookupArchive(network, {type, release: 'ArrowSquid'}),
-      chain: {url: chain, rateLimit: 10},
-    })
-    .setFinalityConfirmation(1)
+    .setGateway(lookupArchive(network, {type, release: 'ArrowSquid'}))
+    .setRpcEndpoint({url: chain, rateLimit: 10})
+    // .setFinalityConfirmation(1)
     .setFields({
       transaction: {
         from: true,
